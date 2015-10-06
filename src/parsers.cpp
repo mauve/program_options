@@ -18,6 +18,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/throw_exception.hpp>
+#include <boost/predef.h>
 
 #include <cctype>
 #include <fstream>
@@ -190,8 +191,14 @@ namespace boost { namespace program_options {
                       const function1<std::string, std::string>& name_mapper)
     {
         parsed_options result(&desc);
-        
-        for(environment_iterator i(environ), e; i != e; ++i) {
+
+#if BOOST_PLAT_WINDOWS_RUNTIME
+        char* environment[] = { NULL };
+#else
+        char** environment = environ;
+#endif
+
+        for(environment_iterator i(environment), e; i != e; ++i) {
             string option_name = name_mapper(i->first);
 
             if (!option_name.empty()) {
